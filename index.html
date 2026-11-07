@@ -19,7 +19,13 @@
   .weather-icon { font-size: 52px; line-height: 1; }
   .weather-temp { font-size: 26px; font-weight: 700; }
   .weather-desc { font-size: 15px; color: #5B729E; }
-  .weather-tomorrow { margin-top: 10px; padding-top: 10px; border-top: 1px dashed #D9E1EE; font-size: 14px; color: #5B729E; }
+  .wxrow { display: flex; gap: 8px; }
+  .wxcol { flex: 1; background: #E9EEF5; border-radius: 10px; padding: 8px 10px; min-width: 0; }
+  .wxlabel { font-size: 13px; font-weight: 700; color: #46587A; }
+  .wxline { display: flex; align-items: center; gap: 8px; margin: 2px 0; }
+  .wxline .wxicon { font-size: 30px; line-height: 1; }
+  .wxline .wxtemp { font-size: 20px; font-weight: 700; }
+  .wxcol .weather-desc { font-size: 13px; }
   .rain-note { display: inline-block; background: #e3f0ff; color: #155a9c; border-radius: 8px; padding: 2px 8px; font-size: 13px; margin-top: 6px; }
   ul.plain { list-style: none; }
   ul.plain li { padding: 8px 2px; border-bottom: 1px solid #E9EEF5; display: flex; align-items: center; gap: 10px; }
@@ -80,15 +86,19 @@
   <section id="tab-news">
     <div class="card" id="weatherCard">
       <h2>天気 <span class="sub" id="cityName"></span></h2>
-      <div class="weather-main">
-        <div class="weather-icon" id="wIcon">…</div>
-        <div>
-          <div class="weather-temp" id="wTemp"></div>
+      <div class="wxrow">
+        <div class="wxcol">
+          <div class="wxlabel">今日</div>
+          <div class="wxline"><span class="wxicon" id="wIcon">…</span><span class="wxtemp" id="wTemp"></span></div>
           <div class="weather-desc" id="wDesc">読み込み中…</div>
-          <div id="wRain"></div>
+        </div>
+        <div class="wxcol">
+          <div class="wxlabel">明日</div>
+          <div class="wxline"><span class="wxicon" id="wIcon2">…</span><span class="wxtemp" id="wTemp2"></span></div>
+          <div class="weather-desc" id="wDesc2"></div>
         </div>
       </div>
-      <div class="weather-tomorrow" id="wTomorrow"></div>
+      <div id="wRain"></div>
     </div>
 
     <div class="card">
@@ -304,20 +314,34 @@
       document.getElementById("wDesc").textContent = desc;
       document.getElementById("wRain").innerHTML = todayRain ? '<span class="rain-note">☂️ 今日は傘があると安心です</span>' : "";
       var w1 = wmo(d.weather_code[1]);
-      document.getElementById("wTomorrow").textContent =
-        "明日：" + w1.icon + " " + w1.text + " " + Math.round(d.temperature_2m_max[1]) + "° / " + Math.round(d.temperature_2m_min[1]) + "°";
+      document.getElementById("wIcon2").textContent = w1.icon;
+      document.getElementById("wTemp2").textContent = Math.round(d.temperature_2m_max[1]) + "° / " + Math.round(d.temperature_2m_min[1]) + "°";
+      var desc2 = w1.text;
+      if (d.precipitation_probability_max && d.precipitation_probability_max[1] != null)
+        desc2 += "（降水確率 " + d.precipitation_probability_max[1] + "%）";
+      document.getElementById("wDesc2").textContent = desc2;
       renderBelongings();
     }).catch(function(){
       document.getElementById("wDesc").textContent = "天気を取得できませんでした";
     });
   }
 
-  // ---------- ニュース（NHK RSS・ベストエフォート） ----------
+  // ---------- ニュース（Googleニュース RSS・ベストエフォート） ----------
+  var GNEWS = "https://news.google.com/rss/search?hl=ja&gl=JP&ceid=JP:ja&q=";
   var NEWS_CATS = [
-    {k:"cat0", label:"総合"}, {k:"cat1", label:"社会"}, {k:"cat2", label:"文化・エンタメ"},
-    {k:"cat3", label:"科学・医療"}, {k:"cat4", label:"政治"}, {k:"cat5", label:"経済"},
-    {k:"cat6", label:"国際"}, {k:"cat7", label:"スポーツ"}
+    {k:"top", label:"総合", feed:"https://news.google.com/rss?hl=ja&gl=JP&ceid=JP:ja"},
+    {k:"soc", label:"社会", feed:GNEWS + encodeURIComponent("社会")},
+    {k:"ent", label:"文化・エンタメ", feed:GNEWS + encodeURIComponent("エンタメ")},
+    {k:"sci", label:"科学・医療", feed:GNEWS + encodeURIComponent("科学 医療")},
+    {k:"pol", label:"政治", feed:GNEWS + encodeURIComponent("政治")},
+    {k:"eco", label:"経済", feed:GNEWS + encodeURIComponent("経済")},
+    {k:"int", label:"国際", feed:GNEWS + encodeURIComponent("国際")},
+    {k:"spo", label:"スポーツ", feed:GNEWS + encodeURIComponent("スポーツ")}
   ];
+  var NEWS_KEYMAP = {"cat0":"top","cat1":"soc","cat2":"ent","cat3":"sci","cat4":"pol","cat5":"eco","cat6":"int","cat7":"spo"};
+  if (state.newsCats){
+    state.newsCats = state.newsCats.map(function(k){ return NEWS_KEYMAP[k] || k; });
+  }
   function newsCheckboxes(containerId, selected){
     var html = "";
     NEWS_CATS.forEach(function(c){
@@ -340,17 +364,19 @@
     wrap.innerHTML += '<p class="note" style="margin-top:2px;">最初に、見たいニュースのジャンルを選んでください。</p><div class="addrow"><button class="add" id="newsPrefSave">この内容で決定</button></div>';
     document.getElementById("newsPrefSave").addEventListener("click", function(){
       var cats = readNewsCats("newsPref");
-      state.newsCats = cats.length ? cats : ["cat0"];
+      state.newsCats = cats.length ? cats : ["top"];
       save(); renderNewsPref(); renderNewsSettings(); fetchNews();
     });
   }
   function renderNewsSettings(){
-    newsCheckboxes("newsSettings", state.newsCats || ["cat0"]);
+    newsCheckboxes("newsSettings", state.newsCats || ["top"]);
   }
   function fetchNews(){
-    var cats = (state.newsCats && state.newsCats.length) ? state.newsCats : ["cat0"];
+    var cats = (state.newsCats && state.newsCats.length) ? state.newsCats : ["top"];
     var reqs = cats.map(function(k){
-      var rss = "https://www.nhk.or.jp/rss/news/cat" + k.slice(3) + ".xml";
+      var cat = null;
+      NEWS_CATS.forEach(function(c){ if (c.k === k) cat = c; });
+      var rss = cat ? cat.feed : NEWS_CATS[0].feed;
       var url = "https://api.allorigins.win/raw?url=" + encodeURIComponent(rss);
       return fetch(url).then(function(r){ return r.text(); }).catch(function(){ return ""; });
     });
@@ -361,7 +387,10 @@
         var doc = new DOMParser().parseFromString(xml, "text/xml");
         doc.querySelectorAll("item").forEach(function(it){
           var t = it.querySelector("title"), l = it.querySelector("link"), d = it.querySelector("pubDate");
-          if (t) all.push({title: t.textContent, link: l ? l.textContent : "#", date: d ? new Date(d.textContent).getTime() : 0});
+          if (t){
+            var title = t.textContent.replace(/\s+-\s+[^-]+$/, "");
+            all.push({title: title, link: l ? l.textContent : "#", date: d ? new Date(d.textContent).getTime() : 0});
+          }
         });
       });
       all.sort(function(a,b){ return b.date - a.date; });
@@ -572,7 +601,7 @@
   });
   document.getElementById("newsSave").addEventListener("click", function(){
     var cats = readNewsCats("newsSettings");
-    state.newsCats = cats.length ? cats : ["cat0"];
+    state.newsCats = cats.length ? cats : ["top"];
     save(); renderNewsPref(); fetchNews(); alert("保存しました");
   });
   document.getElementById("garbageSave").addEventListener("click", function(){
