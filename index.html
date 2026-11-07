@@ -44,7 +44,20 @@
   .done label { text-decoration: line-through; color: #A89C8E; }
   .evdate { font-size: 13px; color: #A89C8E; margin: 10px 0 2px; font-weight: 700; }
   .form-grid { display: grid; gap: 8px; }
-  .form-grid input, .form-grid select { font-size: 16px; padding: 10px; border: 1px solid #DCD2C4; border-radius: 10px; width: 100%; }
+  .form-grid input, .form-grid select, .form-grid textarea { font-size: 16px; padding: 10px; border: 1px solid #DCD2C4; border-radius: 10px; width: 100%; font-family: inherit; }
+  .dtrow { display: flex; gap: 8px; }
+  .dtrow input[type="date"] { flex: 1; }
+  .dtrow input[type="time"] { width: 118px; flex: none; }
+  .evsub { font-size: 13px; color: #7D7268; }
+  details.fold { background: #fff; border-radius: 14px; padding: 14px; margin-bottom: 12px; box-shadow: 0 1px 3px rgba(0,0,0,.06); }
+  details.fold summary { font-size: 17px; font-weight: 700; color: #7D7268; cursor: pointer; list-style: none; }
+  details.fold summary::-webkit-details-marker { display: none; }
+  details.fold summary::after { content: " ＋"; color: #A2937F; }
+  details.fold[open ] summary::after { content: " －"; }
+  details.fold .foldbody { margin-top: 12px; }
+  .wdblock { padding: 8px 0; border-bottom: 1px solid #EFE9E1; }
+  .wdblock:last-child { border-bottom: none; }
+  .wdblock .wdname { font-weight: 700; color: #8A7B68; font-size: 15px; margin-bottom: 4px; }
   .setrow { display: flex; align-items: center; gap: 8px; padding: 6px 0; border-bottom: 1px solid #EFE9E1; }
   .setrow:last-child { border-bottom: none; }
   .setrow .wd { width: 36px; font-weight: 700; color: #A2937F; }
@@ -115,9 +128,13 @@
     <div class="card">
       <h2>予定を追加</h2>
       <div class="form-grid">
-        <input type="date" id="evDate">
-        <input type="time" id="evTime">
+        <div class="dtrow">
+          <input type="date" id="evDate">
+          <input type="time" id="evTime">
+        </div>
         <input type="text" id="evTitle" placeholder="予定の内容（例：病院、買い物）">
+        <textarea id="evDetail" rows="2" placeholder="予定の詳細（場所・持ち物など）"></textarea>
+        <input type="text" id="evMemo" placeholder="一言メモ">
         <button class="add" id="evAdd">予定を追加</button>
       </div>
     </div>
@@ -127,21 +144,29 @@
       <div id="eventList"></div>
     </div>
 
-    <div class="card">
-      <h2>持ち物リスト <span class="sub">毎日の定番</span></h2>
-      <ul class="plain" id="belongingsList"></ul>
-      <div class="addrow">
-        <input type="text" id="belongingInput" placeholder="持ち物を入力（例：水筒）">
-        <button class="add" id="belongingAdd">追加</button>
+    <details class="fold">
+      <summary>持ち物の設定</summary>
+      <div class="foldbody">
+        <h3 style="font-size:15px;color:#7D7268;margin-bottom:6px;">毎日の持ち物</h3>
+        <ul class="plain" id="belongingsList"></ul>
+        <div class="addrow">
+          <input type="text" id="belongingInput" placeholder="持ち物を入力（例：水筒）">
+          <button class="add" id="belongingAdd">追加</button>
+        </div>
+        <h3 style="font-size:15px;color:#7D7268;margin:16px 0 6px;">曜日ごとの持ち物</h3>
+        <p class="note">その曜日だけニュース画面に出ます（例：水曜に「体操服」）。</p>
+        <div id="belongingsWeekday"></div>
       </div>
-    </div>
+    </details>
 
-    <div class="card">
-      <h2>ゴミの日の設定 <span class="sub">曜日ごと</span></h2>
-      <div id="garbageSettings"></div>
-      <div class="addrow"><button class="add" id="garbageSave">保存する</button></div>
-      <p class="note">例：月曜と木曜に「燃えるゴミ」、金曜に「プラ」など。空欄の日は何も表示されません。</p>
-    </div>
+    <details class="fold">
+      <summary>ゴミの日の設定</summary>
+      <div class="foldbody">
+        <div id="garbageSettings"></div>
+        <div class="addrow"><button class="add" id="garbageSave">保存する</button></div>
+        <p class="note">例：月曜と木曜に「燃えるゴミ」、金曜に「プラ」など。空欄の日は何も表示されません。一度設定すればOKです。</p>
+      </div>
+    </details>
 
     <div class="card">
       <h2>天気の地域</h2>
@@ -204,6 +229,7 @@
       todos: [],
       events: [],
       belongings: ["財布","スマホ","ハンカチ"],
+      belongingsByWeekday: {"0":[],"1":[],"2":[],"3":[],"4":[],"5":[],"6":[]},
       garbage: {"0":"","1":"","2":"","3":"","4":"","5":"","6":""},
       shopping: []
     };
@@ -321,12 +347,34 @@
     var chips = "";
     if (todayRain) chips += '<span class="chip auto">☂️ 傘（雨の予報）</span>';
     state.belongings.forEach(function(b){ chips += '<span class="chip">' + esc(b) + "</span>"; });
+    var wdItems = (state.belongingsByWeekday && state.belongingsByWeekday[String(new Date().getDay())]) || [];
+    wdItems.forEach(function(b){ chips += '<span class="chip">' + esc(b) + "</span>"; });
     document.getElementById("belongingsChips").innerHTML = chips || '<span class="empty">持ち物リストが空です（予定タブで追加できます）</span>';
     var list = "";
     state.belongings.forEach(function(b, i){
       list += '<li><label style="flex:1">' + esc(b) + '</label><button class="del" data-bdel="' + i + '">×</button></li>';
     });
     document.getElementById("belongingsList").innerHTML = list || '<li class="empty">まだありません</li>';
+    renderBelongingsWeekday();
+  }
+  function renderBelongingsWeekday(){
+    var wrap = document.getElementById("belongingsWeekday");
+    if (!wrap) return;
+    if (!state.belongingsByWeekday) state.belongingsByWeekday = {"0":[],"1":[],"2":[],"3":[],"4":[],"5":[],"6":[]};
+    var html = "";
+    for (var i=0;i<7;i++){
+      var wd = (i+1)%7; // 月曜から
+      var items = state.belongingsByWeekday[String(wd)] || [];
+      var chips = "";
+      items.forEach(function(b, idx){
+        chips += '<span class="chip">' + esc(b) + ' <button class="del" data-wdel="' + wd + ':' + idx + '">×</button></span>';
+      });
+      html += '<div class="wdblock"><div class="wdname">' + WD[wd] + '曜</div>' +
+        (chips || '<span class="empty">なし</span>') +
+        '<div class="addrow"><input type="text" data-winput="' + wd + '" placeholder="追加する持ち物">' +
+        '<button class="add" data-wadd="' + wd + '">追加</button></div></div>';
+    }
+    wrap.innerHTML = html;
   }
 
   // ---------- TODO ----------
@@ -346,7 +394,10 @@
 
   // ---------- 予定 ----------
   function eventItem(e){
-    return '<li><span class="time">' + (e.time ? esc(e.time) : "") + '</span><label style="flex:1">' + esc(e.title) + '</label></li>';
+    var sub = "";
+    if (e.detail) sub += '<div class="evsub">' + esc(e.detail) + "</div>";
+    if (e.memo) sub += '<div class="evsub">✎ ' + esc(e.memo) + "</div>";
+    return '<li><span class="time">' + (e.time ? esc(e.time) : "") + '</span><div style="flex:1"><div>' + esc(e.title) + "</div>" + sub + "</div></li>";
   }
   function renderDashboardEvents(){
     var t = todayStr(), tm = tomorrowStr();
@@ -368,7 +419,10 @@
         html += '<div class="evdate">' + (+p[1]) + "月" + (+p[2]) + "日（" + WD[d.getDay()] + "）</div><ul class='plain'>";
         lastDate = e.date;
       }
-      html += '<li><span class="time">' + (e.time ? esc(e.time) : "") + '</span><label style="flex:1">' + esc(e.title) + '</label><button class="del" data-edel="' + e.id + '">×</button></li>';
+      var sub = "";
+      if (e.detail) sub += '<div class="evsub">' + esc(e.detail) + "</div>";
+      if (e.memo) sub += '<div class="evsub">✎ ' + esc(e.memo) + "</div>";
+      html += '<li><span class="time">' + (e.time ? esc(e.time) : "") + '</span><div style="flex:1"><div>' + esc(e.title) + "</div>" + sub + '</div><button class="del" data-edel="' + e.id + '">×</button></li>';
       // 日付グループの閉じタグは簡易的に次の見出し前に入れない（表示上の軽微な差異として許容）
     });
     wrap.innerHTML = html;
@@ -377,9 +431,13 @@
     var date = document.getElementById("evDate").value;
     var time = document.getElementById("evTime").value;
     var title = document.getElementById("evTitle").value.trim();
+    var detail = document.getElementById("evDetail").value.trim();
+    var memo = document.getElementById("evMemo").value.trim();
     if (!date || !title){ alert("日付と内容を入力してください"); return; }
-    state.events.push({id: uid(), date: date, time: time, title: title});
+    state.events.push({id: uid(), date: date, time: time, title: title, detail: detail, memo: memo});
     document.getElementById("evTitle").value = "";
+    document.getElementById("evDetail").value = "";
+    document.getElementById("evMemo").value = "";
     save(); renderDashboardEvents(); renderEventList();
   }
 
@@ -441,6 +499,22 @@
   document.getElementById("belongingsList").addEventListener("click", function(e){
     var idx = e.target.getAttribute("data-bdel");
     if (idx !== null && idx !== undefined){ state.belongings.splice(+idx, 1); save(); renderBelongings(); }
+  });
+  document.getElementById("belongingsWeekday").addEventListener("click", function(e){
+    var add = e.target.getAttribute("data-wadd");
+    if (add !== null && add !== undefined){
+      var inp = document.querySelector('input[data-winput="' + add + '"]');
+      var v = inp.value.trim(); if (!v) return;
+      if (!state.belongingsByWeekday) state.belongingsByWeekday = {"0":[],"1":[],"2":[],"3":[],"4":[],"5":[],"6":[]};
+      state.belongingsByWeekday[add].push(v);
+      save(); renderBelongings(); return;
+    }
+    var del = e.target.getAttribute("data-wdel");
+    if (del){
+      var parts = del.split(":");
+      state.belongingsByWeekday[parts[0]].splice(+parts[1], 1);
+      save(); renderBelongings();
+    }
   });
   document.getElementById("garbageSave").addEventListener("click", function(){
     document.querySelectorAll("#garbageSettings input").forEach(function(inp){
