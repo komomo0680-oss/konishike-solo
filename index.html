@@ -371,7 +371,8 @@
   function renderNewsSettings(){
     newsCheckboxes("newsSettings", state.newsCats || ["top"]);
   }
-  function fetchNews(){
+  function fetchNews(){ fetchNewsTry(0); }
+  function fetchNewsTry(tries){
     var cats = (state.newsCats && state.newsCats.length) ? state.newsCats : ["top"];
     var reqs = cats.map(function(k){
       var cat = null;
@@ -398,8 +399,13 @@
       all.slice(0, 6).forEach(function(n){
         html += '<li><a href="' + esc(n.link) + '" target="_blank" rel="noopener"><span class="ntitle">' + esc(n.title) + "</span></a></li>";
       });
+      if (!html && tries < 1){
+        setTimeout(function(){ fetchNewsTry(tries + 1); }, 1500);
+        return;
+      }
       document.getElementById("newsList").innerHTML = html || '<li class="empty">ニュースを取得できませんでした</li>';
     }).catch(function(){
+      if (tries < 1){ setTimeout(function(){ fetchNewsTry(tries + 1); }, 1500); return; }
       document.getElementById("newsList").innerHTML = '<li class="empty">ニュースを取得できませんでした（通信環境をご確認ください）</li>';
     });
   }
