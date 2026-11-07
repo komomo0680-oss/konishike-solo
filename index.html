@@ -6,53 +6,53 @@
 <title>小西家（試作）</title>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: -apple-system, "Hiragino Kaku Gothic ProN", "Yu Gothic", sans-serif; background: #f2f6f3; color: #22312a; font-size: 16px; padding-bottom: 84px; }
-  header { background: #2e7d5b; color: #fff; padding: 14px 16px 12px; position: sticky; top: 0; z-index: 10; }
+  body { font-family: -apple-system, "Hiragino Kaku Gothic ProN", "Yu Gothic", sans-serif; background: #F7F4F0; color: #463E35; font-size: 16px; padding-bottom: 84px; }
+  header { background: #B0A294; color: #fff; padding: 14px 16px 12px; position: sticky; top: 0; z-index: 10; }
   header .appname { font-size: 20px; font-weight: 700; }
   header .appname .proto { font-size: 12px; background: #ffb74d; color: #4e2f00; border-radius: 8px; padding: 2px 8px; margin-left: 8px; vertical-align: middle; }
   header .today { font-size: 14px; opacity: .92; margin-top: 2px; }
   main { padding: 12px; max-width: 640px; margin: 0 auto; }
   .card { background: #fff; border-radius: 14px; padding: 14px; margin-bottom: 12px; box-shadow: 0 1px 3px rgba(0,0,0,.06); }
-  .card h2 { font-size: 17px; margin-bottom: 10px; color: #2e7d5b; }
-  .card h2 .sub { font-size: 12px; color: #8aa396; font-weight: 400; margin-left: 6px; }
+  .card h2 { font-size: 17px; margin-bottom: 10px; color: #A2937F; }
+  .card h2 .sub { font-size: 12px; color: #A89C8E; font-weight: 400; margin-left: 6px; }
   .weather-main { display: flex; align-items: center; gap: 14px; }
   .weather-icon { font-size: 52px; line-height: 1; }
   .weather-temp { font-size: 26px; font-weight: 700; }
-  .weather-desc { font-size: 15px; color: #476355; }
-  .weather-tomorrow { margin-top: 10px; padding-top: 10px; border-top: 1px dashed #dbe7df; font-size: 14px; color: #476355; }
+  .weather-desc { font-size: 15px; color: #7D7268; }
+  .weather-tomorrow { margin-top: 10px; padding-top: 10px; border-top: 1px dashed #E7DFD4; font-size: 14px; color: #7D7268; }
   .rain-note { display: inline-block; background: #e3f0ff; color: #155a9c; border-radius: 8px; padding: 2px 8px; font-size: 13px; margin-top: 6px; }
   ul.plain { list-style: none; }
-  ul.plain li { padding: 8px 2px; border-bottom: 1px solid #eef3f0; display: flex; align-items: center; gap: 10px; }
+  ul.plain li { padding: 8px 2px; border-bottom: 1px solid #EFE9E1; display: flex; align-items: center; gap: 10px; }
   ul.plain li:last-child { border-bottom: none; }
-  .time { color: #2e7d5b; font-weight: 700; font-size: 14px; min-width: 46px; }
-  .empty { color: #8aa396; font-size: 14px; padding: 4px 0; }
+  .time { color: #A2937F; font-weight: 700; font-size: 14px; min-width: 46px; }
+  .empty { color: #A89C8E; font-size: 14px; padding: 4px 0; }
   .chips { display: flex; flex-wrap: wrap; gap: 8px; }
-  .chip { background: #eef6f1; border: 1px solid #cfe4d7; border-radius: 999px; padding: 6px 12px; font-size: 15px; }
+  .chip { background: #EEE9E2; border: 1px solid #DDD3C6; border-radius: 999px; padding: 6px 12px; font-size: 15px; }
   .chip.auto { background: #e3f0ff; border-color: #bcd8fa; }
   .garbage { font-size: 17px; font-weight: 700; }
-  .garbage .tomorrow { font-size: 14px; font-weight: 400; color: #476355; margin-left: 8px; }
-  .news li a { color: #22312a; text-decoration: none; }
+  .garbage .tomorrow { font-size: 14px; font-weight: 400; color: #7D7268; margin-left: 8px; }
+  .news li a { color: #463E35; text-decoration: none; }
   .news li { display: block; }
   .news .ntitle { font-size: 15px; }
   .addrow { display: flex; gap: 8px; margin-top: 10px; }
-  .addrow input[type="text"] { flex: 1; font-size: 16px; padding: 10px; border: 1px solid #cfe0d5; border-radius: 10px; }
-  button.add { background: #2e7d5b; color: #fff; border: none; border-radius: 10px; padding: 10px 16px; font-size: 16px; font-weight: 700; }
-  button.ghost { background: #eef3f0; color: #476355; border: none; border-radius: 8px; padding: 6px 12px; font-size: 14px; }
+  .addrow input[type="text"] { flex: 1; font-size: 16px; padding: 10px; border: 1px solid #DCD2C4; border-radius: 10px; }
+  button.add { background: #A2937F; color: #fff; border: none; border-radius: 10px; padding: 10px 16px; font-size: 16px; font-weight: 700; }
+  button.ghost { background: #EFE9E1; color: #7D7268; border: none; border-radius: 8px; padding: 6px 12px; font-size: 14px; }
   button.del { background: none; border: none; color: #c0504d; font-size: 18px; padding: 2px 6px; }
   .checkable label { flex: 1; font-size: 16px; }
-  .checkable input[type="checkbox"] { width: 22px; height: 22px; accent-color: #2e7d5b; }
-  .done label { text-decoration: line-through; color: #8aa396; }
-  .evdate { font-size: 13px; color: #8aa396; margin: 10px 0 2px; font-weight: 700; }
+  .checkable input[type="checkbox"] { width: 22px; height: 22px; accent-color: #A2937F; }
+  .done label { text-decoration: line-through; color: #A89C8E; }
+  .evdate { font-size: 13px; color: #A89C8E; margin: 10px 0 2px; font-weight: 700; }
   .form-grid { display: grid; gap: 8px; }
-  .form-grid input, .form-grid select { font-size: 16px; padding: 10px; border: 1px solid #cfe0d5; border-radius: 10px; width: 100%; }
-  .setrow { display: flex; align-items: center; gap: 8px; padding: 6px 0; border-bottom: 1px solid #eef3f0; }
+  .form-grid input, .form-grid select { font-size: 16px; padding: 10px; border: 1px solid #DCD2C4; border-radius: 10px; width: 100%; }
+  .setrow { display: flex; align-items: center; gap: 8px; padding: 6px 0; border-bottom: 1px solid #EFE9E1; }
   .setrow:last-child { border-bottom: none; }
-  .setrow .wd { width: 36px; font-weight: 700; color: #2e7d5b; }
-  .setrow input[type="text"] { flex: 1; font-size: 16px; padding: 8px; border: 1px solid #cfe0d5; border-radius: 8px; }
-  nav.tabs { position: fixed; bottom: 0; left: 0; right: 0; background: #fff; border-top: 1px solid #dbe7df; display: flex; z-index: 10; }
-  nav.tabs button { flex: 1; background: none; border: none; padding: 12px 0 14px; font-size: 16px; font-weight: 700; color: #8aa396; }
-  nav.tabs button.active { color: #2e7d5b; box-shadow: inset 0 3px 0 #2e7d5b; }
-  .note { font-size: 13px; color: #8aa396; line-height: 1.6; }
+  .setrow .wd { width: 36px; font-weight: 700; color: #A2937F; }
+  .setrow input[type="text"] { flex: 1; font-size: 16px; padding: 8px; border: 1px solid #DCD2C4; border-radius: 8px; }
+  nav.tabs { position: fixed; bottom: 0; left: 0; right: 0; background: #fff; border-top: 1px solid #E7DFD4; display: flex; z-index: 10; }
+  nav.tabs button { flex: 1; background: none; border: none; padding: 12px 0 14px; font-size: 16px; font-weight: 700; color: #A89C8E; }
+  nav.tabs button.active { color: #A2937F; box-shadow: inset 0 3px 0 #A2937F; }
+  .note { font-size: 13px; color: #A89C8E; line-height: 1.6; }
   .hidden { display: none; }
 </style>
 </head>
