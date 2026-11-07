@@ -6,66 +6,66 @@
 <title>小西家（試作）</title>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: -apple-system, "Hiragino Kaku Gothic ProN", "Yu Gothic", sans-serif; background: #F7F4F0; color: #463E35; font-size: 16px; padding-bottom: 84px; }
-  header { background: #B0A294; color: #fff; padding: 14px 16px 12px; position: sticky; top: 0; z-index: 10; }
+  body { font-family: -apple-system, "Hiragino Kaku Gothic ProN", "Yu Gothic", sans-serif; background: #F3F5F9; color: #2F3B52; font-size: 16px; padding-bottom: 84px; }
+  header { background: #93A7CC; color: #fff; padding: 14px 16px 12px; position: sticky; top: 0; z-index: 10; }
   header .appname { font-size: 20px; font-weight: 700; }
   header .appname .proto { font-size: 12px; background: #ffb74d; color: #4e2f00; border-radius: 8px; padding: 2px 8px; margin-left: 8px; vertical-align: middle; }
   header .today { font-size: 14px; opacity: .92; margin-top: 2px; }
   main { padding: 12px; max-width: 640px; margin: 0 auto; }
   .card { background: #fff; border-radius: 14px; padding: 14px; margin-bottom: 12px; box-shadow: 0 1px 3px rgba(0,0,0,.06); }
-  .card h2 { font-size: 17px; margin-bottom: 10px; color: #A2937F; }
-  .card h2 .sub { font-size: 12px; color: #A89C8E; font-weight: 400; margin-left: 6px; }
+  .card h2 { font-size: 17px; margin-bottom: 10px; color: #46587A; }
+  .card h2 .sub { font-size: 12px; color: #93A3BC; font-weight: 400; margin-left: 6px; }
   .weather-main { display: flex; align-items: center; gap: 14px; }
   .weather-icon { font-size: 52px; line-height: 1; }
   .weather-temp { font-size: 26px; font-weight: 700; }
-  .weather-desc { font-size: 15px; color: #7D7268; }
-  .weather-tomorrow { margin-top: 10px; padding-top: 10px; border-top: 1px dashed #E7DFD4; font-size: 14px; color: #7D7268; }
+  .weather-desc { font-size: 15px; color: #5B729E; }
+  .weather-tomorrow { margin-top: 10px; padding-top: 10px; border-top: 1px dashed #D9E1EE; font-size: 14px; color: #5B729E; }
   .rain-note { display: inline-block; background: #e3f0ff; color: #155a9c; border-radius: 8px; padding: 2px 8px; font-size: 13px; margin-top: 6px; }
   ul.plain { list-style: none; }
-  ul.plain li { padding: 8px 2px; border-bottom: 1px solid #EFE9E1; display: flex; align-items: center; gap: 10px; }
+  ul.plain li { padding: 8px 2px; border-bottom: 1px solid #E9EEF5; display: flex; align-items: center; gap: 10px; }
   ul.plain li:last-child { border-bottom: none; }
-  .time { color: #A2937F; font-weight: 700; font-size: 14px; min-width: 46px; }
-  .empty { color: #A89C8E; font-size: 14px; padding: 4px 0; }
+  .time { color: #46587A; font-weight: 700; font-size: 14px; min-width: 46px; }
+  .empty { color: #93A3BC; font-size: 14px; padding: 4px 0; }
   .chips { display: flex; flex-wrap: wrap; gap: 8px; }
-  .chip { background: #EEE9E2; border: 1px solid #DDD3C6; border-radius: 999px; padding: 6px 12px; font-size: 15px; }
+  .chip { background: #E5EAF3; border: 1px solid #C9D4E8; border-radius: 999px; padding: 6px 12px; font-size: 15px; }
   .chip.auto { background: #e3f0ff; border-color: #bcd8fa; }
   .garbage { font-size: 17px; font-weight: 700; }
-  .garbage .tomorrow { font-size: 14px; font-weight: 400; color: #7D7268; margin-left: 8px; }
-  .news li a { color: #463E35; text-decoration: none; }
+  .garbage .tomorrow { font-size: 14px; font-weight: 400; color: #5B729E; margin-left: 8px; }
+  .news li a { color: #2F3B52; text-decoration: none; }
   .news li { display: block; }
   .news .ntitle { font-size: 15px; }
   .addrow { display: flex; gap: 8px; margin-top: 10px; }
-  .addrow input[type="text"] { flex: 1; font-size: 16px; padding: 10px; border: 1px solid #DCD2C4; border-radius: 10px; }
-  button.add { background: #A2937F; color: #fff; border: none; border-radius: 10px; padding: 10px 16px; font-size: 16px; font-weight: 700; }
-  button.ghost { background: #EFE9E1; color: #7D7268; border: none; border-radius: 8px; padding: 6px 12px; font-size: 14px; }
+  .addrow input[type="text"] { flex: 1; font-size: 16px; padding: 10px; border: 1px solid #C9D4E8; border-radius: 10px; }
+  button.add { background: #6E8BB8; color: #fff; border: none; border-radius: 10px; padding: 10px 16px; font-size: 16px; font-weight: 700; }
+  button.ghost { background: #E9EEF5; color: #5B729E; border: none; border-radius: 8px; padding: 6px 12px; font-size: 14px; }
   button.del { background: none; border: none; color: #c0504d; font-size: 18px; padding: 2px 6px; }
   .checkable label { flex: 1; font-size: 16px; }
-  .checkable input[type="checkbox"] { width: 22px; height: 22px; accent-color: #A2937F; }
-  .done label { text-decoration: line-through; color: #A89C8E; }
-  .evdate { font-size: 13px; color: #A89C8E; margin: 10px 0 2px; font-weight: 700; }
+  .checkable input[type="checkbox"] { width: 22px; height: 22px; accent-color: #6E8BB8; }
+  .done label { text-decoration: line-through; color: #93A3BC; }
+  .evdate { font-size: 13px; color: #93A3BC; margin: 10px 0 2px; font-weight: 700; }
   .form-grid { display: grid; gap: 8px; }
-  .form-grid input, .form-grid select, .form-grid textarea { font-size: 16px; padding: 10px; border: 1px solid #DCD2C4; border-radius: 10px; width: 100%; font-family: inherit; }
+  .form-grid input, .form-grid select, .form-grid textarea { font-size: 16px; padding: 10px; border: 1px solid #C9D4E8; border-radius: 10px; width: 100%; font-family: inherit; }
   .dtrow { display: flex; gap: 8px; }
   .dtrow input[type="date"] { flex: 1; }
   .dtrow input[type="time"] { width: 118px; flex: none; }
-  .evsub { font-size: 13px; color: #7D7268; }
+  .evsub { font-size: 13px; color: #5B729E; }
   details.fold { background: #fff; border-radius: 14px; padding: 14px; margin-bottom: 12px; box-shadow: 0 1px 3px rgba(0,0,0,.06); }
-  details.fold summary { font-size: 17px; font-weight: 700; color: #7D7268; cursor: pointer; list-style: none; }
+  details.fold summary { font-size: 17px; font-weight: 700; color: #5B729E; cursor: pointer; list-style: none; }
   details.fold summary::-webkit-details-marker { display: none; }
-  details.fold summary::after { content: " ＋"; color: #A2937F; }
+  details.fold summary::after { content: " ＋"; color: #6E8BB8; }
   details.fold[open ] summary::after { content: " －"; }
   details.fold .foldbody { margin-top: 12px; }
-  .wdblock { padding: 8px 0; border-bottom: 1px solid #EFE9E1; }
+  .wdblock { padding: 8px 0; border-bottom: 1px solid #E9EEF5; }
   .wdblock:last-child { border-bottom: none; }
-  .wdblock .wdname { font-weight: 700; color: #8A7B68; font-size: 15px; margin-bottom: 4px; }
-  .setrow { display: flex; align-items: center; gap: 8px; padding: 6px 0; border-bottom: 1px solid #EFE9E1; }
+  .wdblock .wdname { font-weight: 700; color: #46587A; font-size: 15px; margin-bottom: 4px; }
+  .setrow { display: flex; align-items: center; gap: 8px; padding: 6px 0; border-bottom: 1px solid #E9EEF5; }
   .setrow:last-child { border-bottom: none; }
-  .setrow .wd { width: 36px; font-weight: 700; color: #A2937F; }
-  .setrow input[type="text"] { flex: 1; font-size: 16px; padding: 8px; border: 1px solid #DCD2C4; border-radius: 8px; }
-  nav.tabs { position: fixed; bottom: 0; left: 0; right: 0; background: #fff; border-top: 1px solid #E7DFD4; display: flex; z-index: 10; }
-  nav.tabs button { flex: 1; background: none; border: none; padding: 12px 0 14px; font-size: 16px; font-weight: 700; color: #A89C8E; }
-  nav.tabs button.active { color: #A2937F; box-shadow: inset 0 3px 0 #A2937F; }
-  .note { font-size: 13px; color: #A89C8E; line-height: 1.6; }
+  .setrow .wd { width: 36px; font-weight: 700; color: #6E8BB8; }
+  .setrow input[type="text"] { flex: 1; font-size: 16px; padding: 8px; border: 1px solid #C9D4E8; border-radius: 8px; }
+  nav.tabs { position: fixed; bottom: 0; left: 0; right: 0; background: #fff; border-top: 1px solid #D9E1EE; display: flex; z-index: 10; }
+  nav.tabs button { flex: 1; background: none; border: none; padding: 12px 0 14px; font-size: 16px; font-weight: 700; color: #93A3BC; }
+  nav.tabs button.active { color: #6E8BB8; box-shadow: inset 0 3px 0 #6E8BB8; }
+  .note { font-size: 13px; color: #93A3BC; line-height: 1.6; }
   .hidden { display: none; }
 </style>
 </head>
@@ -119,6 +119,7 @@
 
     <div class="card">
       <h2>ニュース</h2>
+      <div id="newsPref"></div>
       <ul class="plain news" id="newsList"><li class="empty">読み込み中…</li></ul>
     </div>
   </section>
@@ -147,13 +148,13 @@
     <details class="fold">
       <summary>持ち物の設定</summary>
       <div class="foldbody">
-        <h3 style="font-size:15px;color:#7D7268;margin-bottom:6px;">毎日の持ち物</h3>
+        <h3 style="font-size:15px;color:#5B729E;margin-bottom:6px;">毎日の持ち物</h3>
         <ul class="plain" id="belongingsList"></ul>
         <div class="addrow">
           <input type="text" id="belongingInput" placeholder="持ち物を入力（例：水筒）">
           <button class="add" id="belongingAdd">追加</button>
         </div>
-        <h3 style="font-size:15px;color:#7D7268;margin:16px 0 6px;">曜日ごとの持ち物</h3>
+        <h3 style="font-size:15px;color:#5B729E;margin:16px 0 6px;">曜日ごとの持ち物</h3>
         <p class="note">その曜日だけニュース画面に出ます（例：水曜に「体操服」）。</p>
         <div id="belongingsWeekday"></div>
       </div>
@@ -175,6 +176,15 @@
         <button class="add" id="citySave">変更</button>
       </div>
     </div>
+
+    <details class="fold">
+      <summary>ニュースの好みの設定</summary>
+      <div class="foldbody">
+        <p class="note">見たいジャンルを選んでください（複数OK）。新しい順に混ぜて表示します。</p>
+        <div id="newsSettings"></div>
+        <div class="addrow"><button class="add" id="newsSave">保存する</button></div>
+      </div>
+    </details>
 
     <div class="card">
       <h2>データのバックアップ</h2>
@@ -230,6 +240,7 @@
       events: [],
       belongings: ["財布","スマホ","ハンカチ"],
       belongingsByWeekday: {"0":[],"1":[],"2":[],"3":[],"4":[],"5":[],"6":[]},
+      newsCats: null,
       garbage: {"0":"","1":"","2":"","3":"","4":"","5":"","6":""},
       shopping: []
     };
@@ -302,19 +313,62 @@
   }
 
   // ---------- ニュース（NHK RSS・ベストエフォート） ----------
+  var NEWS_CATS = [
+    {k:"cat0", label:"総合"}, {k:"cat1", label:"社会"}, {k:"cat2", label:"文化・エンタメ"},
+    {k:"cat3", label:"科学・医療"}, {k:"cat4", label:"政治"}, {k:"cat5", label:"経済"},
+    {k:"cat6", label:"国際"}, {k:"cat7", label:"スポーツ"}
+  ];
+  function newsCheckboxes(containerId, selected){
+    var html = "";
+    NEWS_CATS.forEach(function(c){
+      var on = selected && selected.indexOf(c.k) >= 0;
+      html += '<label style="display:inline-block;margin:0 10px 8px 0;font-size:15px;"><input type="checkbox" data-news-cat="' + c.k + '"' + (on ? " checked" : "") + ' style="width:20px;height:20px;accent-color:#6E8BB8;vertical-align:middle;"> ' + c.label + "</label>";
+    });
+    document.getElementById(containerId).innerHTML = html;
+  }
+  function readNewsCats(containerId){
+    var out = [];
+    document.querySelectorAll("#" + containerId + " input[data-news-cat]").forEach(function(inp){
+      if (inp.checked) out.push(inp.getAttribute("data-news-cat"));
+    });
+    return out;
+  }
+  function renderNewsPref(){
+    var wrap = document.getElementById("newsPref");
+    if (state.newsCats && state.newsCats.length){ wrap.innerHTML = ""; return; }
+    newsCheckboxes("newsPref", null);
+    wrap.innerHTML += '<p class="note" style="margin-top:2px;">最初に、見たいニュースのジャンルを選んでください。</p><div class="addrow"><button class="add" id="newsPrefSave">この内容で決定</button></div>';
+    document.getElementById("newsPrefSave").addEventListener("click", function(){
+      var cats = readNewsCats("newsPref");
+      state.newsCats = cats.length ? cats : ["cat0"];
+      save(); renderNewsPref(); renderNewsSettings(); fetchNews();
+    });
+  }
+  function renderNewsSettings(){
+    newsCheckboxes("newsSettings", state.newsCats || ["cat0"]);
+  }
   function fetchNews(){
-    var rss = "https://www.nhk.or.jp/rss/news/cat0.xml";
-    var url = "https://api.allorigins.win/raw?url=" + encodeURIComponent(rss);
-    fetch(url).then(function(r){ return r.text(); }).then(function(xml){
-      var doc = new DOMParser().parseFromString(xml, "text/xml");
-      var items = doc.querySelectorAll("item");
+    var cats = (state.newsCats && state.newsCats.length) ? state.newsCats : ["cat0"];
+    var reqs = cats.map(function(k){
+      var rss = "https://www.nhk.or.jp/rss/news/cat" + k.slice(3) + ".xml";
+      var url = "https://api.allorigins.win/raw?url=" + encodeURIComponent(rss);
+      return fetch(url).then(function(r){ return r.text(); }).catch(function(){ return ""; });
+    });
+    Promise.all(reqs).then(function(xmls){
+      var all = [];
+      xmls.forEach(function(xml){
+        if (!xml) return;
+        var doc = new DOMParser().parseFromString(xml, "text/xml");
+        doc.querySelectorAll("item").forEach(function(it){
+          var t = it.querySelector("title"), l = it.querySelector("link"), d = it.querySelector("pubDate");
+          if (t) all.push({title: t.textContent, link: l ? l.textContent : "#", date: d ? new Date(d.textContent).getTime() : 0});
+        });
+      });
+      all.sort(function(a,b){ return b.date - a.date; });
       var html = "";
-      var n = Math.min(items.length, 5);
-      for (var i=0;i<n;i++){
-        var t = items[i].querySelector("title");
-        var l = items[i].querySelector("link");
-        if (t) html += '<li><a href="' + esc(l ? l.textContent : "#") + '" target="_blank" rel="noopener"><span class="ntitle">' + esc(t.textContent) + "</span></a></li>";
-      }
+      all.slice(0, 6).forEach(function(n){
+        html += '<li><a href="' + esc(n.link) + '" target="_blank" rel="noopener"><span class="ntitle">' + esc(n.title) + "</span></a></li>";
+      });
       document.getElementById("newsList").innerHTML = html || '<li class="empty">ニュースを取得できませんでした</li>';
     }).catch(function(){
       document.getElementById("newsList").innerHTML = '<li class="empty">ニュースを取得できませんでした（通信環境をご確認ください）</li>';
@@ -516,6 +570,11 @@
       save(); renderBelongings();
     }
   });
+  document.getElementById("newsSave").addEventListener("click", function(){
+    var cats = readNewsCats("newsSettings");
+    state.newsCats = cats.length ? cats : ["cat0"];
+    save(); renderNewsPref(); fetchNews(); alert("保存しました");
+  });
   document.getElementById("garbageSave").addEventListener("click", function(){
     document.querySelectorAll("#garbageSettings input").forEach(function(inp){
       state.garbage[inp.getAttribute("data-wd")] = inp.value.trim();
@@ -561,6 +620,7 @@
   function renderAll(){
     renderHeader(); renderGarbage(); renderGarbageSettings();
     renderBelongings(); renderTodos(); renderDashboardEvents(); renderEventList(); renderShopping();
+    renderNewsPref(); renderNewsSettings();
     document.getElementById("evDate").value = todayStr();
     document.getElementById("cityInput").value = state.city;
   }
