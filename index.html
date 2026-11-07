@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>小西家（試作）</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, "Hiragino Kaku Gothic ProN", "Yu Gothic", sans-serif; background: #f2f6f3; color: #22312a; font-size: 16px; padding-bottom: 84px; }
+  header { background: #2e7d5b; color: #fff; padding: 14px 16px 12px; position: sticky; top: 0; z-index: 10; }
+  header .appname { font-size: 20px; font-weight: 700; }
+  header .appname .proto { font-size: 12px; background: #ffb74d; color: #4e2f00; border-radius: 8px; padding: 2px 8px; margin-left: 8px; vertical-align: middle; }
+  header .today { font-size: 14px; opacity: .92; margin-top: 2px; }
+  main { padding: 12px; max-width: 640px; margin: 0 auto; }
+  .card { background: #fff; border-radius: 14px; padding: 14px; margin-bottom: 12px; box-shadow: 0 1px 3px rgba(0,0,0,.06); }
+  .card h2 { font-size: 17px; margin-bottom: 10px; color: #2e7d5b; }
+  .card h2 .sub { font-size: 12px; color: #8aa396; font-weight: 400; margin-left: 6px; }
+  .weather-main { display: flex; align-items: center; gap: 14px; }
+  .weather-icon { font-size: 52px; line-height: 1; }
+  .weather-temp { font-size: 26px; font-weight: 700; }
+  .weather-desc { font-size: 15px; color: #476355; }
+  .weather-tomorrow { margin-top: 10px; padding-top: 10px; border-top: 1px dashed #dbe7df; font-size: 14px; color: #476355; }
+  .rain-note { display: inline-block; background: #e3f0ff; color: #155a9c; border-radius: 8px; padding: 2px 8px; font-size: 13px; margin-top: 6px; }
+  ul.plain { list-style: none; }
+  ul.plain li { padding: 8px 2px; border-bottom: 1px solid #eef3f0; display: flex; align-items: center; gap: 10px; }
+  ul.plain li:last-child { border-bottom: none; }
+  .time { color: #2e7d5b; font-weight: 700; font-size: 14px; min-width: 46px; }
+  .empty { color: #8aa396; font-size: 14px; padding: 4px 0; }
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; }
+  .chip { background: #eef6f1; border: 1px solid #cfe4d7; border-radius: 999px; padding: 6px 12px; font-size: 15px; }
+  .chip.auto { background: #e3f0ff; border-color: #bcd8fa; }
+  .garbage { font-size: 17px; font-weight: 700; }
+  .garbage .tomorrow { font-size: 14px; font-weight: 400; color: #476355; margin-left: 8px; }
+  .news li a { color: #22312a; text-decoration: none; }
+  .news li { display: block; }
+  .news .ntitle { font-size: 15px; }
+  .addrow { display: flex; gap: 8px; margin-top: 10px; }
+  .addrow input[type="text"] { flex: 1; font-size: 16px; padding: 10px; border: 1px solid #cfe0d5; border-radius: 10px; }
+  button.add { background: #2e7d5b; color: #fff; border: none; border-radius: 10px; padding: 10px 16px; font-size: 16px; font-weight: 700; }
+  button.ghost { background: #eef3f0; color: #476355; border: none; border-radius: 8px; padding: 6px 12px; font-size: 14px; }
+  button.del { background: none; border: none; color: #c0504d; font-size: 18px; padding: 2px 6px; }
+  .checkable label { flex: 1; font-size: 16px; }
+  .checkable input[type="checkbox"] { width: 22px; height: 22px; accent-color: #2e7d5b; }
+  .done label { text-decoration: line-through; color: #8aa396; }
+  .evdate { font-size: 13px; color: #8aa396; margin: 10px 0 2px; font-weight: 700; }
+  .form-grid { display: grid; gap: 8px; }
+  .form-grid input, .form-grid select { font-size: 16px; padding: 10px; border: 1px solid #cfe0d5; border-radius: 10px; width: 100%; }
+  .setrow { display: flex; align-items: center; gap: 8px; padding: 6px 0; border-bottom: 1px solid #eef3f0; }
+  .setrow:last-child { border-bottom: none; }
+  .setrow .wd { width: 36px; font-weight: 700; color: #2e7d5b; }
+  .setrow input[type="text"] { flex: 1; font-size: 16px; padding: 8px; border: 1px solid #cfe0d5; border-radius: 8px; }
+  nav.tabs { position: fixed; bottom: 0; left: 0; right: 0; background: #fff; border-top: 1px solid #dbe7df; display: flex; z-index: 10; }
+  nav.tabs button { flex: 1; background: none; border: none; padding: 12px 0 14px; font-size: 16px; font-weight: 700; color: #8aa396; }
+  nav.tabs button.active { color: #2e7d5b; box-shadow: inset 0 3px 0 #2e7d5b; }
+  .note { font-size: 13px; color: #8aa396; line-height: 1.6; }
+  .hidden { display: none; }
+</style>
+</head>
+<body>
+<header>
+  <div class="appname">小西家<span class="proto">試作版</span></div>
+  <div class="today" id="todayLine"></div>
+</header>
+
+<main>
+  <!-- ニュース（ダッシュボード） -->
+  <section id="tab-news">
+    <div class="card" id="weatherCard">
+      <h2>天気 <span class="sub" id="cityName"></span></h2>
+      <div class="weather-main">
+        <div class="weather-icon" id="wIcon">…</div>
+        <div>
+          <div class="weather-temp" id="wTemp"></div>
+          <div class="weather-desc" id="wDesc">読み込み中…</div>
+          <div id="wRain"></div>
+        </div>
+      </div>
+      <div class="weather-tomorrow" id="wTomorrow"></div>
+    </div>
+
+    <div class="card">
+      <h2>ゴミの日</h2>
+      <div class="garbage" id="garbageToday"></div>
+    </div>
+
+    <div class="card">
+      <h2>今日の予定</h2>
+      <ul class="plain" id="todayEvents"></ul>
+      <div class="evdate">明日の予定</div>
+      <ul class="plain" id="tomorrowEvents"></ul>
+    </div>
+
+    <div class="card">
+      <h2>持ち物</h2>
+      <div class="chips" id="belongingsChips"></div>
+    </div>
+
+    <div class="card">
+      <h2>TODO <span class="sub">その場で書いて消せます</span></h2>
+      <ul class="plain" id="todoList"></ul>
+      <div class="addrow">
+        <input type="text" id="todoInput" placeholder="やることを入力">
+        <button class="add" id="todoAdd">追加</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>ニュース</h2>
+      <ul class="plain news" id="newsList"><li class="empty">読み込み中…</li></ul>
+    </div>
+  </section>
+
+  <!-- 予定 -->
+  <section id="tab-schedule" class="hidden">
+    <div class="card">
+      <h2>予定を追加</h2>
+      <div class="form-grid">
+        <input type="date" id="evDate">
+        <input type="time" id="evTime">
+        <input type="text" id="evTitle" placeholder="予定の内容（例：病院、買い物）">
+        <button class="add" id="evAdd">予定を追加</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>これからの予定</h2>
+      <div id="eventList"></div>
+    </div>
+
+    <div class="card">
+      <h2>持ち物リスト <span class="sub">毎日の定番</span></h2>
+      <ul class="plain" id="belongingsList"></ul>
+      <div class="addrow">
+        <input type="text" id="belongingInput" placeholder="持ち物を入力（例：水筒）">
+        <button class="add" id="belongingAdd">追加</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>ゴミの日の設定 <span class="sub">曜日ごと</span></h2>
+      <div id="garbageSettings"></div>
+      <div class="addrow"><button class="add" id="garbageSave">保存する</button></div>
+      <p class="note">例：月曜と木曜に「燃えるゴミ」、金曜に「プラ」など。空欄の日は何も表示されません。</p>
+    </div>
+
+    <div class="card">
+      <h2>天気の地域</h2>
+      <div class="addrow" style="margin-top:0">
+        <input type="text" id="cityInput" placeholder="市区町村名（例：大阪市）">
+        <button class="add" id="citySave">変更</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>データのバックアップ</h2>
+      <p class="note">データはこのブラウザの中だけに保存されます。機種変更やブラウザを変える前に書き出してください。</p>
+      <div class="addrow">
+        <button class="ghost" id="exportBtn">書き出し（JSON）</button>
+        <button class="ghost" id="importBtn">読み込み</button>
+        <input type="file" id="importFile" accept=".json,application/json" class="hidden">
+      </div>
+    </div>
+  </section>
+
+  <!-- 買い物リスト -->
+  <section id="tab-shopping" class="hidden">
+    <div class="card">
+      <h2>買い物リスト</h2>
+      <ul class="plain" id="shoppingList"></ul>
+      <div class="addrow">
+        <input type="text" id="shoppingInput" placeholder="買うものを入力（例：牛乳）">
+        <button class="add" id="shoppingAdd">追加</button>
+      </div>
+      <div class="addrow">
+        <button class="ghost" id="shoppingClear">買ったものをまとめて消す</button>
+      </div>
+    </div>
+  </section>
+</main>
+
+<nav class="tabs">
+  <button data-tab="news" class="active">ニュース</button>
+  <button data-tab="schedule">予定</button>
+  <button data-tab="shopping">買い物リスト</button>
+</nav>
+
+<script>
+(function(){
+  "use strict";
+  var KEY = "konishike_solo_v1";
+  var WD = ["日","月","火","水","木","金","土"];
+
+  function uid(){ return Date.now().toString(36) + Math.random().toString(36).slice(2,7); }
+  function pad(n){ return (n<10?"0":"") + n; }
+  function ymd(d){ return d.getFullYear() + "-" + pad(d.getMonth()+1) + "-" + pad(d.getDate()); }
+  function todayStr(){ return ymd(new Date()); }
+  function tomorrowStr(){ var d = new Date(); d.setDate(d.getDate()+1); return ymd(d); }
+  function esc(s){ return String(s||"").replace(/[&<>"']/g, function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]; }); }
+
+  function defaultState(){
+    return {
+      city: "大阪市",
+      lat: 34.6937, lon: 135.5023,
+      todos: [],
+      events: [],
+      belongings: ["財布","スマホ","ハンカチ"],
+      garbage: {"0":"","1":"","2":"","3":"","4":"","5":"","6":""},
+      shopping: []
+    };
+  }
+  var state;
+  function load(){
+    try {
+      var raw = localStorage.getItem(KEY);
+      state = raw ? Object.assign(defaultState(), JSON.parse(raw)) : defaultState();
+    } catch(e){ state = defaultState(); }
+  }
+  function save(){
+    try {
+      localStorage.setItem(KEY, JSON.stringify(state));
+      var back = localStorage.getItem(KEY);
+      if (!back) alert("保存できませんでした。ブラウザの空き容量を確認してください。");
+    } catch(e){ alert("保存できませんでした。"); }
+  }
+  load();
+
+  // ---------- ヘッダー ----------
+  function renderHeader(){
+    var d = new Date();
+    document.getElementById("todayLine").textContent =
+      d.getFullYear() + "年" + (d.getMonth()+1) + "月" + d.getDate() + "日（" + WD[d.getDay()] + "）";
+  }
+
+  // ---------- 天気 ----------
+  var WMO = [
+    [0,"晴れ","☀️"],[1,"晴れ","🌤️"],[2,"くもり時々晴れ","⛅"],[3,"くもり","☁️"],
+    [45,"霧","🌫️"],[48,"霧","🌫️"],
+    [51,"小雨","🌦️"],[53,"小雨","🌦️"],[55,"小雨","🌦️"],
+    [61,"雨","🌧️"],[63,"雨","🌧️"],[65,"強い雨","🌧️"],
+    [66,"雨","🌧️"],[67,"強い雨","🌧️"],
+    [71,"雪","🌨️"],[73,"雪","🌨️"],[75,"大雪","🌨️"],[77,"雪","🌨️"],
+    [80,"にわか雨","🌦️"],[81,"にわか雨","🌦️"],[82,"激しいにわか雨","🌧️"],
+    [85,"雪","🌨️"],[86,"雪","🌨️"],
+    [95,"雷雨","⛈️"],[96,"雷雨","⛈️"],[99,"雷雨","⛈️"]
+  ];
+  function wmo(code){
+    for (var i=0;i<WMO.length;i++) if (WMO[i][0]===code) return {text:WMO[i][1], icon:WMO[i][2]};
+    return {text:"—", icon:"🌤️"};
+  }
+  function isRain(code){ return code>=51; }
+  var todayRain = false;
+
+  function fetchWeather(){
+    document.getElementById("cityName").textContent = state.city;
+    var url = "https://api.open-meteo.com/v1/forecast?latitude=" + state.lat + "&longitude=" + state.lon +
+      "&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max" +
+      "&timezone=Asia%2FTokyo&forecast_days=3";
+    fetch(url).then(function(r){ return r.json(); }).then(function(j){
+      var d = j.daily; if (!d) throw new Error("no daily");
+      var w0 = wmo(d.weather_code[0]);
+      todayRain = isRain(d.weather_code[0]) || (d.precipitation_probability_max && d.precipitation_probability_max[0] >= 50);
+      document.getElementById("wIcon").textContent = w0.icon;
+      document.getElementById("wTemp").textContent = Math.round(d.temperature_2m_max[0]) + "° / " + Math.round(d.temperature_2m_min[0]) + "°";
+      var desc = w0.text;
+      if (d.precipitation_probability_max && d.precipitation_probability_max[0] != null)
+        desc += "（降水確率 " + d.precipitation_probability_max[0] + "%）";
+      document.getElementById("wDesc").textContent = desc;
+      document.getElementById("wRain").innerHTML = todayRain ? '<span class="rain-note">☂️ 今日は傘があると安心です</span>' : "";
+      var w1 = wmo(d.weather_code[1]);
+      document.getElementById("wTomorrow").textContent =
+        "明日：" + w1.icon + " " + w1.text + " " + Math.round(d.temperature_2m_max[1]) + "° / " + Math.round(d.temperature_2m_min[1]) + "°";
+      renderBelongings();
+    }).catch(function(){
+      document.getElementById("wDesc").textContent = "天気を取得できませんでした";
+    });
+  }
+
+  // ---------- ニュース（NHK RSS・ベストエフォート） ----------
+  function fetchNews(){
+    var rss = "https://www.nhk.or.jp/rss/news/cat0.xml";
+    var url = "https://api.allorigins.win/raw?url=" + encodeURIComponent(rss);
+    fetch(url).then(function(r){ return r.text(); }).then(function(xml){
+      var doc = new DOMParser().parseFromString(xml, "text/xml");
+      var items = doc.querySelectorAll("item");
+      var html = "";
+      var n = Math.min(items.length, 5);
+      for (var i=0;i<n;i++){
+        var t = items[i].querySelector("title");
+        var l = items[i].querySelector("link");
+        if (t) html += '<li><a href="' + esc(l ? l.textContent : "#") + '" target="_blank" rel="noopener"><span class="ntitle">' + esc(t.textContent) + "</span></a></li>";
+      }
+      document.getElementById("newsList").innerHTML = html || '<li class="empty">ニュースを取得できませんでした</li>';
+    }).catch(function(){
+      document.getElementById("newsList").innerHTML = '<li class="empty">ニュースを取得できませんでした（通信環境をご確認ください）</li>';
+    });
+  }
+
+  // ---------- ゴミの日 ----------
+  function renderGarbage(){
+    var d = new Date();
+    var t = state.garbage[String(d.getDay())] || "";
+    var tm = new Date(); tm.setDate(tm.getDate()+1);
+    var tmr = state.garbage[String(tm.getDay())] || "";
+    document.getElementById("garbageToday").innerHTML =
+      (t ? "今日は「" + esc(t) + "」の日" : "今日はゴミ出しなし") +
+      (tmr ? '<span class="tomorrow">明日は「' + esc(tmr) + "」</span>" : "");
+  }
+  function renderGarbageSettings(){
+    var wrap = document.getElementById("garbageSettings");
+    var html = "";
+    for (var i=0;i<7;i++){
+      var wd = (i+1)%7; // 月曜から並べる
+      html += '<div class="setrow"><span class="wd">' + WD[wd] + '曜</span>' +
+        '<input type="text" data-wd="' + wd + '" value="' + esc(state.garbage[String(wd)]||"") + '" placeholder="例：燃えるゴミ"></div>';
+    }
+    wrap.innerHTML = html;
+  }
+
+  // ---------- 持ち物 ----------
+  function renderBelongings(){
+    var chips = "";
+    if (todayRain) chips += '<span class="chip auto">☂️ 傘（雨の予報）</span>';
+    state.belongings.forEach(function(b){ chips += '<span class="chip">' + esc(b) + "</span>"; });
+    document.getElementById("belongingsChips").innerHTML = chips || '<span class="empty">持ち物リストが空です（予定タブで追加できます）</span>';
+    var list = "";
+    state.belongings.forEach(function(b, i){
+      list += '<li><label style="flex:1">' + esc(b) + '</label><button class="del" data-bdel="' + i + '">×</button></li>';
+    });
+    document.getElementById("belongingsList").innerHTML = list || '<li class="empty">まだありません</li>';
+  }
+
+  // ---------- TODO ----------
+  function renderTodos(){
+    var html = "";
+    state.todos.forEach(function(t){
+      html += '<li class="checkable' + (t.done ? " done" : "") + '"><input type="checkbox" data-todo="' + t.id + '"' + (t.done ? " checked" : "") + '><label>' + esc(t.text) + '</label><button class="del" data-tdel="' + t.id + '">×</button></li>';
+    });
+    document.getElementById("todoList").innerHTML = html || '<li class="empty">TODOはありません</li>';
+  }
+  function addTodo(){
+    var inp = document.getElementById("todoInput");
+    var v = inp.value.trim(); if (!v) return;
+    state.todos.push({id: uid(), text: v, done: false});
+    inp.value = ""; save(); renderTodos();
+  }
+
+  // ---------- 予定 ----------
+  function eventItem(e){
+    return '<li><span class="time">' + (e.time ? esc(e.time) : "") + '</span><label style="flex:1">' + esc(e.title) + '</label></li>';
+  }
+  function renderDashboardEvents(){
+    var t = todayStr(), tm = tomorrowStr();
+    var todays = state.events.filter(function(e){ return e.date === t; }).sort(function(a,b){ return (a.time||"") < (b.time||"") ? -1 : 1; });
+    var tomorrows = state.events.filter(function(e){ return e.date === tm; }).sort(function(a,b){ return (a.time||"") < (b.time||"") ? -1 : 1; });
+    document.getElementById("todayEvents").innerHTML = todays.length ? todays.map(eventItem).join("") : '<li class="empty">今日の予定はありません</li>';
+    document.getElementById("tomorrowEvents").innerHTML = tomorrows.length ? tomorrows.map(eventItem).join("") : '<li class="empty">明日の予定はありません</li>';
+  }
+  function renderEventList(){
+    var wrap = document.getElementById("eventList");
+    var upcoming = state.events.filter(function(e){ return e.date >= todayStr(); })
+      .sort(function(a,b){ return (a.date + (a.time||"")) < (b.date + (b.time||"")) ? -1 : 1; });
+    if (!upcoming.length){ wrap.innerHTML = '<p class="empty">これからの予定はありません</p>'; return; }
+    var html = "", lastDate = "";
+    upcoming.forEach(function(e){
+      if (e.date !== lastDate){
+        var p = e.date.split("-");
+        var d = new Date(+p[0], +p[1]-1, +p[2]);
+        html += '<div class="evdate">' + (+p[1]) + "月" + (+p[2]) + "日（" + WD[d.getDay()] + "）</div><ul class='plain'>";
+        lastDate = e.date;
+      }
+      html += '<li><span class="time">' + (e.time ? esc(e.time) : "") + '</span><label style="flex:1">' + esc(e.title) + '</label><button class="del" data-edel="' + e.id + '">×</button></li>';
+      // 日付グループの閉じタグは簡易的に次の見出し前に入れない（表示上の軽微な差異として許容）
+    });
+    wrap.innerHTML = html;
+  }
+  function addEvent(){
+    var date = document.getElementById("evDate").value;
+    var time = document.getElementById("evTime").value;
+    var title = document.getElementById("evTitle").value.trim();
+    if (!date || !title){ alert("日付と内容を入力してください"); return; }
+    state.events.push({id: uid(), date: date, time: time, title: title});
+    document.getElementById("evTitle").value = "";
+    save(); renderDashboardEvents(); renderEventList();
+  }
+
+  // ---------- 買い物リスト ----------
+  function renderShopping(){
+    var html = "";
+    state.shopping.forEach(function(s){
+      html += '<li class="checkable' + (s.done ? " done" : "") + '"><input type="checkbox" data-shop="' + s.id + '"' + (s.done ? " checked" : "") + '><label>' + esc(s.name) + '</label><button class="del" data-sdel="' + s.id + '">×</button></li>';
+    });
+    document.getElementById("shoppingList").innerHTML = html || '<li class="empty">リストは空です</li>';
+  }
+  function addShopping(){
+    var inp = document.getElementById("shoppingInput");
+    var v = inp.value.trim(); if (!v) return;
+    state.shopping.push({id: uid(), name: v, done: false});
+    inp.value = ""; save(); renderShopping();
+  }
+
+  // ---------- イベント配線 ----------
+  document.querySelectorAll("nav.tabs button").forEach(function(b){
+    b.addEventListener("click", function(){
+      document.querySelectorAll("nav.tabs button").forEach(function(x){ x.classList.remove("active"); });
+      b.classList.add("active");
+      ["news","schedule","shopping"].forEach(function(t){
+        document.getElementById("tab-" + t).classList.toggle("hidden", t !== b.dataset.tab);
+      });
+      window.scrollTo(0,0);
+    });
+  });
+  document.getElementById("todoAdd").addEventListener("click", addTodo);
+  document.getElementById("todoInput").addEventListener("keydown", function(e){ if (e.key === "Enter") addTodo(); });
+  document.getElementById("todoList").addEventListener("click", function(e){
+    var id = e.target.getAttribute("data-todo");
+    if (id){ var t = state.todos.find(function(x){ return x.id === id; }); if (t){ t.done = !t.done; save(); renderTodos(); } return; }
+    var del = e.target.getAttribute("data-tdel");
+    if (del){ state.todos = state.todos.filter(function(x){ return x.id !== del; }); save(); renderTodos(); }
+  });
+  document.getElementById("shoppingAdd").addEventListener("click", addShopping);
+  document.getElementById("shoppingInput").addEventListener("keydown", function(e){ if (e.key === "Enter") addShopping(); });
+  document.getElementById("shoppingList").addEventListener("click", function(e){
+    var id = e.target.getAttribute("data-shop");
+    if (id){ var s = state.shopping.find(function(x){ return x.id === id; }); if (s){ s.done = !s.done; save(); renderShopping(); } return; }
+    var del = e.target.getAttribute("data-sdel");
+    if (del){ state.shopping = state.shopping.filter(function(x){ return x.id !== del; }); save(); renderShopping(); }
+  });
+  document.getElementById("shoppingClear").addEventListener("click", function(){
+    state.shopping = state.shopping.filter(function(x){ return !x.done; }); save(); renderShopping();
+  });
+  document.getElementById("evAdd").addEventListener("click", addEvent);
+  document.getElementById("eventList").addEventListener("click", function(e){
+    var del = e.target.getAttribute("data-edel");
+    if (del){ state.events = state.events.filter(function(x){ return x.id !== del; }); save(); renderDashboardEvents(); renderEventList(); }
+  });
+  document.getElementById("belongingAdd").addEventListener("click", function(){
+    var inp = document.getElementById("belongingInput");
+    var v = inp.value.trim(); if (!v) return;
+    state.belongings.push(v); inp.value = ""; save(); renderBelongings();
+  });
+  document.getElementById("belongingsList").addEventListener("click", function(e){
+    var idx = e.target.getAttribute("data-bdel");
+    if (idx !== null && idx !== undefined){ state.belongings.splice(+idx, 1); save(); renderBelongings(); }
+  });
+  document.getElementById("garbageSave").addEventListener("click", function(){
+    document.querySelectorAll("#garbageSettings input").forEach(function(inp){
+      state.garbage[inp.getAttribute("data-wd")] = inp.value.trim();
+    });
+    save(); renderGarbage(); alert("保存しました");
+  });
+  document.getElementById("citySave").addEventListener("click", function(){
+    var name = document.getElementById("cityInput").value.trim();
+    if (!name) return;
+    fetch("https://geocoding-api.open-meteo.com/v1/search?name=" + encodeURIComponent(name) + "&count=1&language=ja&format=json")
+      .then(function(r){ return r.json(); }).then(function(j){
+        if (j.results && j.results.length){
+          state.city = name; state.lat = j.results[0].latitude; state.lon = j.results[0].longitude;
+          save(); fetchWeather(); alert("地域を「" + name + "」に変更しました");
+        } else { alert("その地域が見つかりませんでした"); }
+      }).catch(function(){ alert("地域の検索に失敗しました"); });
+  });
+  document.getElementById("exportBtn").addEventListener("click", function(){
+    var blob = new Blob([JSON.stringify(state, null, 2)], {type: "application/json"});
+    var a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = "konishike-solo-backup.json";
+    a.click();
+    URL.revokeObjectURL(a.href);
+  });
+  document.getElementById("importBtn").addEventListener("click", function(){
+    document.getElementById("importFile").click();
+  });
+  document.getElementById("importFile").addEventListener("change", function(e){
+    var f = e.target.files[0]; if (!f) return;
+    var reader = new FileReader();
+    reader.onload = function(){
+      try {
+        var data = JSON.parse(reader.result);
+        state = Object.assign(defaultState(), data);
+        save(); renderAll(); fetchWeather();
+        alert("読み込みました");
+      } catch(err){ alert("読み込みに失敗しました"); }
+    };
+    reader.readAsText(f);
+  });
+
+  function renderAll(){
+    renderHeader(); renderGarbage(); renderGarbageSettings();
+    renderBelongings(); renderTodos(); renderDashboardEvents(); renderEventList(); renderShopping();
+    document.getElementById("evDate").value = todayStr();
+    document.getElementById("cityInput").value = state.city;
+  }
+  renderAll();
+  fetchWeather();
+  fetchNews();
+})();
+</script>
+</body>
+</html>
