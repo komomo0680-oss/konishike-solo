@@ -333,6 +333,7 @@
   var GNEWS = "https://news.google.com/rss/search?hl=ja&gl=JP&ceid=JP:ja&q=";
   var NEWS_CATS = [
     {k:"top", label:"総合", feed:"https://news.google.com/rss?hl=ja&gl=JP&ceid=JP:ja"},
+    {k:"local", label:"地域（天気の地域）", feed:""},
     {k:"soc", label:"社会", feed:GNEWS + encodeURIComponent("社会")},
     {k:"ent", label:"文化・エンタメ", feed:GNEWS + encodeURIComponent("エンタメ")},
     {k:"sci", label:"科学・医療", feed:GNEWS + encodeURIComponent("科学 医療")},
@@ -438,6 +439,7 @@
       var cat = null;
       NEWS_CATS.forEach(function(c){ if (c.k === k) cat = c; });
       var rss = cat ? cat.feed : NEWS_CATS[0].feed;
+      if (k === "local") rss = GNEWS + encodeURIComponent(state.city || "大阪");
       return fetchFeed(rss);
     });
     Promise.all(reqs).then(function(lists){
