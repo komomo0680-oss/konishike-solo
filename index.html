@@ -380,7 +380,7 @@
   function renderNewsItems(items){
     var html = "";
     items.forEach(function(n){
-      html += '<li><a href="' + esc(n.link) + '" target="_blank" rel="noopener"><span class="ntitle">' + esc(n.title) + "</span></a></li>";
+      html += '<li><a href="' + esc(n.link) + '"><span class="ntitle">' + esc(n.title) + "</span></a></li>";
     });
     if (html) document.getElementById("newsList").innerHTML = html;
     return html;
