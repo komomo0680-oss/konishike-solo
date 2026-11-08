@@ -271,6 +271,11 @@
       var back = localStorage.getItem(KEY);
       if (!back) alert("保存できませんでした。ブラウザの空き容量を確認してください。");
     } catch(e){ alert("保存できませんでした。"); }
+    pushBridge();
+  }
+  // Androidアプリ版の中にいる時だけ、データをウィジェット用に渡す（ブラウザでは何もしない）
+  function pushBridge(){
+    try { if (window.SoloBridge) window.SoloBridge.saveData(JSON.stringify(state)); } catch(e){}
   }
   load();
 
