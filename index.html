@@ -76,6 +76,8 @@
   nav.tabs button { flex: 1; background: none; border: none; padding: 12px 0 14px; font-size: 16px; font-weight: 700; color: #93A3BC; }
   nav.tabs button.active { color: #6E8BB8; box-shadow: inset 0 3px 0 #6E8BB8; }
   .note { font-size: 13px; color: #93A3BC; line-height: 1.6; }
+  .howto { padding-left: 22px; line-height: 1.8; font-size: 15px; margin: 6px 0; }
+  .howto li { margin: 3px 0; }
   .hidden { display: none; }
 </style>
 </head>
@@ -224,12 +226,44 @@
       </div>
     </div>
   </section>
+
+  <!-- 使い方 -->
+  <section id="tab-help" class="hidden">
+    <div class="card">
+      <h2>ウィジェットの置き方</h2>
+      <p class="note">ウィジェットは Android アプリ版だけの機能です（Web版では使えません）。</p>
+      <ol class="howto">
+        <li>先にこのアプリで、TODO や予定を 1 つ入れておく（ウィジェットに表示する中身になります）</li>
+        <li>ホーム画面の何もない場所を長押しする</li>
+        <li>「ウィジェット」をタップする</li>
+        <li>一覧から「小西家」を探して長押しし、置きたい場所まで動かして離す</li>
+        <li>大きさは、枠の端を引っ張ると変えられます</li>
+        <li>ウィジェット右上の「⟳」を押すと、その場で最新に更新されます（自動でも 1 時間ごとに更新されます）</li>
+      </ol>
+    </div>
+
+    <div class="card">
+      <h2>かんたんな使い方</h2>
+      <ol class="howto">
+        <li>「ニュース」画面：天気、今日の予定、TODO、持ち物、ゴミの日、ニュースがまとめて出ます</li>
+        <li>「予定」タブ：予定の追加のほか、持ち物・ゴミの日・天気の地域・ニュースの好みの設定もここにあります</li>
+        <li>「買い物リスト」タブ：買うものをメモして、買ったらチェックを付けます</li>
+      </ol>
+    </div>
+
+    <div class="card">
+      <h2>データについて</h2>
+      <p class="note">入力したデータは、このスマホ（ブラウザ）の中だけに保存されます。他の人に見えることはありません。</p>
+      <p class="note">機種変更や、使うブラウザを変える前には、「予定」タブの下の方にある「データのバックアップ」から書き出してください。</p>
+    </div>
+  </section>
 </main>
 
 <nav class="tabs">
   <button data-tab="news" class="active">ニュース</button>
   <button data-tab="schedule">予定</button>
   <button data-tab="shopping">買い物リスト</button>
+  <button data-tab="help">使い方</button>
 </nav>
 
 <script>
@@ -605,7 +639,7 @@
     b.addEventListener("click", function(){
       document.querySelectorAll("nav.tabs button").forEach(function(x){ x.classList.remove("active"); });
       b.classList.add("active");
-      ["news","schedule","shopping"].forEach(function(t){
+      ["news","schedule","shopping","help"].forEach(function(t){
         document.getElementById("tab-" + t).classList.toggle("hidden", t !== b.dataset.tab);
       });
       window.scrollTo(0,0);
