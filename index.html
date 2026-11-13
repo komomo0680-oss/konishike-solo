@@ -253,6 +253,13 @@
     </div>
 
     <div class="card">
+      <h2>アプリの更新</h2>
+      <p class="note">アプリ版に新しい版が出ているか確認できます。新しい版があると、ボタンに ● が付きます。</p>
+      <button class="ghost" id="updateBtn" type="button">アプリの更新を確認</button>
+      <p class="note" id="updateMsg"></p>
+    </div>
+
+    <div class="card">
       <h2>データについて</h2>
       <p class="note">入力したデータは、このスマホ（ブラウザ）の中だけに保存されます。他の人に見えることはありません。</p>
       <p class="note">機種変更や、使うブラウザを変える前には、「予定」タブの下の方にある「データのバックアップ」から書き出してください。</p>
@@ -751,6 +758,39 @@
     document.getElementById("evDate").value = todayStr();
     document.getElementById("cityInput").value = state.city;
   }
+  // アプリの更新チェック（アプリ版の中だけで動く）
+  var soloUpdateAvailable = false;
+  window.soloUpdateResult = function(has){
+    soloUpdateAvailable = !!has;
+    var b = document.getElementById("updateBtn");
+    var m = document.getElementById("updateMsg");
+    if (!b) return;
+    if (has) {
+      b.textContent = "アプリを更新 ●";
+      if (m) m.textContent = "新しい版があります。ボタンを押すと更新が始まります";
+    } else if (m) {
+      m.textContent = "いまの版が最新です";
+    }
+  };
+  var updateBtn = document.getElementById("updateBtn");
+  if (updateBtn) {
+    updateBtn.addEventListener("click", function(){
+      var m = document.getElementById("updateMsg");
+      if (!window.SoloUpdate) {
+        if (m) m.textContent = "この確認はアプリ版でのみ使えます";
+        return;
+      }
+      if (soloUpdateAvailable) {
+        if (m) m.textContent = "更新をはじめます…";
+        window.SoloUpdate.start();
+      } else {
+        if (m) m.textContent = "確認しています…";
+        window.SoloUpdate.check();
+      }
+    });
+    if (window.SoloUpdate) { try { window.SoloUpdate.check(); } catch(e){} }
+  }
+
   renderAll();
   fetchWeather();
   fetchNews();
