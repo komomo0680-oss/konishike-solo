@@ -7,7 +7,7 @@
 <link rel="apple-touch-icon" href="icon-180.png">
 <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
 <link rel="manifest" href="manifest.json">
-<title>小西家（試作）</title>
+<title>小西家</title>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { font-family: -apple-system, "Hiragino Kaku Gothic ProN", "Yu Gothic", sans-serif; background: #F3F5F9; color: #2F3B52; font-size: 16px; padding-bottom: 84px; }
@@ -83,7 +83,7 @@
 </head>
 <body>
 <header>
-  <div class="appname">小西家<span class="proto">試作版</span></div>
+  <div class="appname">小西家</div>
   <div class="today" id="todayLine"></div>
 </header>
 
@@ -347,32 +347,42 @@
   function isRain(code){ return code>=51; }
   var todayRain = false;
 
+  var WX_CACHE_KEY = "konishike_solo_wx_v1";
+  function renderWeather(d){
+    var w0 = wmo(d.weather_code[0]);
+    todayRain = isRain(d.weather_code[0]) || (d.precipitation_probability_max && d.precipitation_probability_max[0] >= 40);
+    document.getElementById("wIcon").textContent = w0.icon;
+    document.getElementById("wTemp").textContent = Math.round(d.temperature_2m_max[0]) + "° / " + Math.round(d.temperature_2m_min[0]) + "°";
+    var desc = w0.text;
+    if (d.precipitation_probability_max && d.precipitation_probability_max[0] != null)
+      desc += "（降水確率 " + d.precipitation_probability_max[0] + "%）";
+    document.getElementById("wDesc").textContent = desc;
+    document.getElementById("wRain").innerHTML = todayRain ? '<span class="rain-note">☂️ 今日は傘があると安心です</span>' : "";
+    var w1 = wmo(d.weather_code[1]);
+    document.getElementById("wIcon2").textContent = w1.icon;
+    document.getElementById("wTemp2").textContent = Math.round(d.temperature_2m_max[1]) + "° / " + Math.round(d.temperature_2m_min[1]) + "°";
+    var desc2 = w1.text;
+    if (d.precipitation_probability_max && d.precipitation_probability_max[1] != null)
+      desc2 += "（降水確率 " + d.precipitation_probability_max[1] + "%）";
+    document.getElementById("wDesc2").textContent = desc2;
+    renderBelongings();
+  }
   function fetchWeather(){
     document.getElementById("cityName").textContent = state.city;
+    var shown = false;
+    try {
+      var c = JSON.parse(localStorage.getItem(WX_CACHE_KEY) || "null");
+      if (c && c.daily && c.city === state.city){ renderWeather(c.daily); shown = true; }
+    } catch(e){}
     var url = "https://api.open-meteo.com/v1/forecast?latitude=" + state.lat + "&longitude=" + state.lon +
       "&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max" +
       "&timezone=Asia%2FTokyo&forecast_days=3";
     fetch(url).then(function(r){ return r.json(); }).then(function(j){
       var d = j.daily; if (!d) throw new Error("no daily");
-      var w0 = wmo(d.weather_code[0]);
-      todayRain = isRain(d.weather_code[0]) || (d.precipitation_probability_max && d.precipitation_probability_max[0] >= 50);
-      document.getElementById("wIcon").textContent = w0.icon;
-      document.getElementById("wTemp").textContent = Math.round(d.temperature_2m_max[0]) + "° / " + Math.round(d.temperature_2m_min[0]) + "°";
-      var desc = w0.text;
-      if (d.precipitation_probability_max && d.precipitation_probability_max[0] != null)
-        desc += "（降水確率 " + d.precipitation_probability_max[0] + "%）";
-      document.getElementById("wDesc").textContent = desc;
-      document.getElementById("wRain").innerHTML = todayRain ? '<span class="rain-note">☂️ 今日は傘があると安心です</span>' : "";
-      var w1 = wmo(d.weather_code[1]);
-      document.getElementById("wIcon2").textContent = w1.icon;
-      document.getElementById("wTemp2").textContent = Math.round(d.temperature_2m_max[1]) + "° / " + Math.round(d.temperature_2m_min[1]) + "°";
-      var desc2 = w1.text;
-      if (d.precipitation_probability_max && d.precipitation_probability_max[1] != null)
-        desc2 += "（降水確率 " + d.precipitation_probability_max[1] + "%）";
-      document.getElementById("wDesc2").textContent = desc2;
-      renderBelongings();
+      try { localStorage.setItem(WX_CACHE_KEY, JSON.stringify({city: state.city, daily: d})); } catch(e){}
+      renderWeather(d);
     }).catch(function(){
-      document.getElementById("wDesc").textContent = "天気を取得できませんでした";
+      if (!shown) document.getElementById("wDesc").textContent = "天気を取得できませんでした";
     });
   }
 
